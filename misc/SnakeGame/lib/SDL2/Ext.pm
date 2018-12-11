@@ -5,7 +5,7 @@ class SDL_Color is repr<CStruct> is export { # typedef struct SDL_Color {
     has uint8 $.r;                           #     Uint8 r;
     has uint8 $.g;                           #     Uint8 g;
     has uint8 $.b;                           #     Uint8 b;
-    has uint8 $.a;                      #     Uint8 unused;
+    has uint8 $.a = 255;                     #     Uint8 unused;
 }                                            # } SDL_Color;
 constant SDL_Colour = SDL_Color;             #define SDL_Colour SDL_Color
 
