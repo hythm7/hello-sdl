@@ -40,4 +40,6 @@ class SDL_PixelFormat is repr<CStruct> is export { # typedef struct SDL_PixelFor
 
 sub SDL_Delay(int32)                      is native<SDL2> is export {*}
 sub SDL_FreeSurface(SDL_Surface $surface) is native<SDL2> is export {*}
+sub SDL_IntersectRect(SDL_Rect, SDL_Rect, SDL_Rect) is native<SDL2> is export {*}
+sub SDL_HasIntersection(SDL_Rect, SDL_Rect --> Bool) is native<SDL2> is export {*}
 #sub SDL_RenderDrawPoints(SDL_Renderer, CArray[int32], int32) is native<SDL2> is export {*};

@@ -4,6 +4,7 @@ use SDL2::Ext;
 use SnakeGame::Window;
 use SnakeGame::Renderer;
 use SnakeGame::Snake;
+use SnakeGame::Food;
 
 constant W = 400;
 constant H = 400;
@@ -18,6 +19,7 @@ class SnakeGame {
 	has $!renderer;
 	has $!window;
 
+	has SnakeGame::Food  $!food;
 	has SnakeGame::Snake $!snake;
 
   submethod BUILD (
@@ -34,6 +36,7 @@ class SnakeGame {
     $!renderer  = SnakeGame::Renderer.new($!window, :flags(ACCELERATED));
 
 		$!snake = SnakeGame::Snake.new(:color($!snakecolor));
+		$!food = SnakeGame::Food.new();
   }
 
   enum GAMEKEYS (
@@ -45,7 +48,7 @@ class SnakeGame {
 
 	method start () {
 
-	  my $direction = RIGHT;
+	  my $snakedir = RIGHT;
 
 	  my $event = SDL_Event.new;
 
@@ -56,17 +59,17 @@ class SnakeGame {
 				last main if $casted-event.type ~~ QUIT;
 			  
 				if $casted-event.type ~~ KEYDOWN {
-          $direction = LEFT  if $casted-event.scancode == +LEFT;
-          $direction = RIGHT if $casted-event.scancode == +RIGHT;
-          $direction = DOWN  if $casted-event.scancode == +DOWN;
-          $direction = UP    if $casted-event.scancode == +UP;
+          $snakedir = LEFT  if $casted-event.scancode == +LEFT;
+          $snakedir = RIGHT if $casted-event.scancode == +RIGHT;
+          $snakedir = DOWN  if $casted-event.scancode == +DOWN;
+          $snakedir = UP    if $casted-event.scancode == +UP;
 				}
 			}
 
-     self.update(:$direction);
+     self.update(:$snakedir);
 		 self.render();
 
-		 SDL_Delay(1000);
+		 SDL_Delay(200);
 		}
 
 	}
@@ -77,16 +80,24 @@ class SnakeGame {
 
 
 
-  method update (:$direction) {
-    $!snake.go(:$direction);
+  method update (:$snakedir) {
+    $!snake.move(:$snakedir);
+
+		$!food .= new if SDL_HasIntersection($!snake.head.rect, $!food.rect);
+	  
 	}
 
   method render () {
     $!renderer.draw-color($!background.r, $!background.g, $!background.b, $!background.a);
 	  $!renderer.clear;
+    $!renderer.draw-color($!food.color.r, $!food.color.g, $!food.color.b, $!food.color.a);
+    $!renderer.fill-rect($!food.rect);
+
     $!renderer.draw-color($!snake.color.r, $!snake.color.g, $!snake.color.b, $!snake.color.a);
-    $!renderer.fill-rect($!snake.head);
-		$!renderer.fill-rect($!snake.body[0]);
+
+    loop (my $p = $!snake.head; $p; $p .= prev) {
+      $!renderer.fill-rect($p.rect);
+		}
 
 		$!renderer.present;
 
