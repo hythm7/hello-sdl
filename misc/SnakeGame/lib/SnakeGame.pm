@@ -36,16 +36,16 @@ class SnakeGame {
 		$!snake = SnakeGame::Snake.new(:color($!snakecolor));
   }
 
-  enum SNAKEDIR (
-    UP    => 82,
-    DOWN  => 81,
-    LEFT  => 80,
-    RIGHT => 79,
+  enum GAMEKEYS (
+    K_UP    => 82,
+    K_DOWN  => 81,
+    K_LEFT  => 80,
+    K_RIGHT => 79,
   );
 
 	method start () {
 
-	  my $snakedir = 80;
+	  my $direction = RIGHT;
 
 	  my $event = SDL_Event.new;
 
@@ -56,14 +56,14 @@ class SnakeGame {
 				last main if $casted-event.type ~~ QUIT;
 			  
 				if $casted-event.type ~~ KEYDOWN {
-          $snakedir = LEFT  if $casted-event.scancode == +LEFT;
-          $snakedir = RIGHT if $casted-event.scancode == +RIGHT;
-          $snakedir = DOWN  if $casted-event.scancode == +DOWN;
-          $snakedir = UP    if $casted-event.scancode == +UP;
+          $direction = LEFT  if $casted-event.scancode == +LEFT;
+          $direction = RIGHT if $casted-event.scancode == +RIGHT;
+          $direction = DOWN  if $casted-event.scancode == +DOWN;
+          $direction = UP    if $casted-event.scancode == +UP;
 				}
 			}
 
-     self.update(:$snakedir);
+     self.update(:$direction);
 		 self.render();
 
 		 SDL_Delay(1000);
@@ -77,11 +77,8 @@ class SnakeGame {
 
 
 
-  method update (:$snakedir) {
-    $!snake.head.x -= 7 if $snakedir == LEFT;
-    $!snake.head.x += 7 if $snakedir == RIGHT;
-    $!snake.head.y += 7 if $snakedir == DOWN;
-    $!snake.head.y -= 7 if $snakedir == UP;
+  method update (:$direction) {
+    $!snake.go(:$direction);
 	}
 
   method render () {
@@ -89,6 +86,7 @@ class SnakeGame {
 	  $!renderer.clear;
     $!renderer.draw-color($!snake.color.r, $!snake.color.g, $!snake.color.b, $!snake.color.a);
     $!renderer.fill-rect($!snake.head);
+		$!renderer.fill-rect($!snake.body[0]);
 
 		$!renderer.present;
 
