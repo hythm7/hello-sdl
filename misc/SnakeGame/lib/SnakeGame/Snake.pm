@@ -13,25 +13,23 @@ class SnakeGame::Snake {
   class Piece {
 
 	  has SDL_Rect $.rect is rw;
+    has SDL_Color $.color =  SDL_Color.new(:r(255.rand.Int), :g(255.rand.Int), :b(255.rand.Int));
 		has Piece    $.next is rw;
 		has Piece    $.prev is rw;
 
 	}
 
-  has SDL_Color $.color;
 
   has Piece $.head;
   has Piece $.tail;
 
-  submethod BUILD (
-	  :$!color;
-		) {
-    
-		self.grow();
-		self.grow();
-		self.grow();
-		self.grow();
-	  #$!head = Piece.new: rect => SDL_Rect.new(:x(400.rand.Int), :y(400.rand.Int), :w(14), :h(14));
+  submethod BUILD () {
+		my $piece = Piece.new: rect => SDL_Rect.new(:x(400.rand.Int), :y(400.rand.Int), :w(7), :h(7));
+
+    $!head = $piece;
+    $!tail = $piece;
+		$piece.next = Nil;
+		$piece.prev = Nil;
   }
 
 	method move (:$snakedir) {
@@ -48,27 +46,19 @@ class SnakeGame::Snake {
 		
 	}
 
-	method grow () {
+	method nom (:$food) {
     
-	  my $piece = Piece.new: rect => SDL_Rect.new(:w(7), :h(7));
+	  my $piece = Piece.new: color => $food.color, rect => $food.rect;
 
-		if not $!head {
-      $!head = $piece;
-      $!tail = $piece;
-			$piece.next = Nil;
-			$piece.prev = Nil;
-		}
-		else {
-      $!tail.prev = $piece;
-			$piece.next = $!tail;
-			$piece.prev = Nil;
-			$!tail = $piece;
-		}
+    $!tail.prev = $piece;
+		$piece.next = $!tail;
+		$piece.prev = Nil;
+		$!tail = $piece;
 	}
   
 
-  method set-color (:$r, :$g, :$b) {
-    $!color = SDL_Color.new(:$r, :$g, :$b);
-	}
+	#  method set-color (:$r, :$g, :$b) {
+	#  $!color = SDL_Color.new(:$r, :$g, :$b);
+	#}
 
 }

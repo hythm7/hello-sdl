@@ -35,7 +35,7 @@ class SnakeGame {
 		$!window    = SnakeGame::Window.new(:$!width, :$!height, :flags(SHOWN)); 
     $!renderer  = SnakeGame::Renderer.new($!window, :flags(ACCELERATED));
 
-		$!snake = SnakeGame::Snake.new(:color($!snakecolor));
+		$!snake = SnakeGame::Snake.new();
 		$!food = SnakeGame::Food.new();
   }
 
@@ -69,7 +69,7 @@ class SnakeGame {
      self.update(:$snakedir);
 		 self.render();
 
-		 SDL_Delay(200);
+		 SDL_Delay(100);
 		}
 
 	}
@@ -83,7 +83,10 @@ class SnakeGame {
   method update (:$snakedir) {
     $!snake.move(:$snakedir);
 
-		$!food .= new if SDL_HasIntersection($!snake.head.rect, $!food.rect);
+		if SDL_HasIntersection($!snake.head.rect, $!food.rect) {
+		  $!snake.nom(:$!food);
+		  $!food .= new;	
+		}
 	  
 	}
 
@@ -93,9 +96,10 @@ class SnakeGame {
     $!renderer.draw-color($!food.color.r, $!food.color.g, $!food.color.b, $!food.color.a);
     $!renderer.fill-rect($!food.rect);
 
-    $!renderer.draw-color($!snake.color.r, $!snake.color.g, $!snake.color.b, $!snake.color.a);
+		#$!renderer.draw-color($!snake.color.r, $!snake.color.g, $!snake.color.b, $!snake.color.a);
 
     loop (my $p = $!snake.head; $p; $p .= prev) {
+		  $!renderer.draw-color($p.color.r, $p.color.g, $p.color.b, $p.color.a);
       $!renderer.fill-rect($p.rect);
 		}
 
